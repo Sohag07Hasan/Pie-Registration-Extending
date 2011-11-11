@@ -90,26 +90,30 @@ jQuery(document).ready(function($){
 	
 	//default popup
 	$('.default_listing').bind('click',function(){
-		if($(this).attr('checked') == 'checked'){
-			var pop_div = $(this).attr('id') + 'table';
-			popup(pop_div);
-		}
 		
-		return false;
+		if($(this).attr('checked') == 'checked'){
+			var pop_div = $(this).attr('id') + 'table';			
+			popup(pop_div);
+			return false;
+		}
+					
 	});
 	
 	//if cancel is pressed default
 	$('.popup_cancel').bind('click',function(){
 		var popup_id = $(this).attr('id').replace('_cancel','');
+		var modal_list = '#' + popup_id.replace('table','');
 		popup(popup_id);
 		return false;
 	});
 	
 	//submit the popup default
 	$('.popup_submit').bind('click',function(){
-		var popup_id = $(this).attr('id').replace('_submit','');
+		var popup_id = $(this).attr('id').replace('_submit','');		
+		var modal_list = '#' + popup_id.replace('table','');
+		$(modal_list).attr('checked','checked');			
 		popup(popup_id);
-		return false;
+		
 	});
 	
 	
@@ -133,6 +137,15 @@ jQuery(document).ready(function($){
 		}
 	});
 	
-		
+	//if other option is checked
+	$('.other_listing').bind('click',function(){
+		var div_id = $(this).attr('id').replace('table','div');
+		popup(div_id);
+	});
+	
+	//make the checkbox alwasy checked
+	$('.default_checkbox').bind('click',function(){
+		return false;
+	});	
 	
 });

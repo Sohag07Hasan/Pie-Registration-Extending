@@ -4,6 +4,7 @@
  * author: Mahibul Hasan Sohag
  * author uri: http://sohag07hasan.elance.com
  * plugin uri: http://healerswiki.org
+ * Description: The plugin extends both the pie register and the members plugin. Make sure both of them are activated. Also check the hooks are hooked in correct manner as described.
  * 
  * */
 
@@ -11,9 +12,32 @@ if(!class_exists('pie_register_extending')) :
 
 	class pie_register_extending{
 		
+		
+		
 		function __construct(){
 			add_action('pie-registraion-form',array($this,'pie_registraion_extra_fields'),100);
 			add_action('login_enqueue_scripts',array($this,'css_js_adding'));
+			add_action('pie_register_extending_save',array($this,'extending_save'),10,1);
+			add_filter('registration_errors',array($this,'extending_errors'),50);
+			register_activation_hook( __FILE__, array($this,'table_creation'));
+		}
+		
+		//database table creation
+		function table_creation(){
+			global $wpdb;
+			$table = $wpdb->prefix . 'pie_ext';
+			$sql = "CREATE TABLE IF NOT EXISTS $table(
+				`id` bigint unsigned NOT NULL,
+				`modal` text NOT NULL,
+				`type` varchar(10) NOT NULL,
+				`details` text NOT NULL,
+				`auth_key` varchar(50),
+				`verified` varchar(10) NOT NULL
+				)";
+			if(!function_exists('dbDelta')) :
+				include ABSPATH . 'wp-admin/includes/upgrade.php';
+			endif;
+			dbDelta($sql);	
 		}
 		
 		//extra fileds
@@ -22,6 +46,14 @@ if(!class_exists('pie_register_extending')) :
 			$modalities = $all_options['lists'];
 		?>
 		<div>&nbsp;</div>
+		
+		<!-- upload type multipart -->
+		<script type="text/javascript">
+	
+			jQuery('#registerform').attr('enctype','multipart/form-data');
+		</script>
+		
+		
 		
 		<div style="clear:both">
 			<?php _e('<label>Healing Modalities:</label>', 'piereg');?>
@@ -36,21 +68,22 @@ if(!class_exists('pie_register_extending')) :
 			<!-- other default table -->
 			<label for "healing_modalities[]">
 				<p>
-					<input id="<?php echo $input_id; ?>" class="default_listing" type="checkbox" name="healing_modalities[]" value="<?php echo $modal; ?>" /> <?php echo $modal; ?>
+					<input id="<?php echo $input_id; ?>" class="default_listing"  type="checkbox" name="healing_modalities[]" value="<?php echo $modal; ?>" /> <?php echo $modal; ?>
 				</p>
 				
 			</label>		
 					
 		
-		<!-- pop up for regular options -->		
-		<div id="<?php echo $div_id; ?>" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
+		<!-- pop up for regular options -->	
+			
+		<div class="div_for_popup" id="<?php echo $div_id; ?>" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
 			<h2 class="suggestion-text">Please Provide your Information</h2>
 			<table class="popup_table_default">
 				<tbody>
 					<tr>
 						<td colspan='2'>Please Confirm: </td>
 						<td>
-							<input class="default_checkbox" type="checkbox" name="<?php echo $sanitized.'_confirm' ?>" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
+							<input class="default_checkbox" checked="checked" type="checkbox" name="<?php echo $sanitized.'_confirm' ?>" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
 						</td>
 					</tr>
 					<tr>
@@ -72,7 +105,7 @@ if(!class_exists('pie_register_extending')) :
 			<table style="display:none;" class="popup_documents_default">
 				<tbody>
 					<tr>
-						<td colspan="2">  only pdf (Max 2MB) </td>
+						<td colspan="2"> only pdf/jpg/png (Max 2MB) </td>
 						<td  class="popup_file_d"><input style="font-size:17px;" name="<?php echo $sanitized . '_certificate'; ?>" type="file" /> </td>
 					</tr>
 				</tbody>
@@ -96,9 +129,8 @@ if(!class_exists('pie_register_extending')) :
 				<a href="#" id="<?php echo $div_id.'_cancel' ?>" class="popup_cancel"><input type="button" value="cancel" class="button-secondary" /></a>&nbsp;&nbsp;
 				<a href="#" id="<?php echo $div_id.'_submit' ?>" class="popup_submit"><input type="button" name="popup_submit" value="submit" class="button-secondary" /></a>
 			</div>
-			
-			
-			</div>
+				
+		</div>
 			
 			
 			
@@ -106,14 +138,82 @@ if(!class_exists('pie_register_extending')) :
 			
 			<label for "healing_modalities[]">
 				<p>
-					<input id="other_listing_table" class="other_listing" type="checkbox" name="healing_modalities[]" value="Other" /> Other
+					<input id="Other" class="default_listing" type="checkbox" name="healing_modalities[]" value="Other" /> Other
 				</p>
 			</label>
+			
+			<!-- pop up for other options -->		
+			<div class="div_for_popup" id="Othertable" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
+				
+				<h2 class="suggestion-text">Please Provide your Suggession</h2>
+				<table class="popup_table_default">
+					<tbody>
+						<tr>
+							<td colspan='2'>Name: </td>
+							<td><input type="text" name="Other_name" /></td>
+						</tr>
+						<tr>
+							<td colspan='2'>Description: </td>
+							<td><textarea cols="30" rows="5" name="Other_description" ></textarea></td>
+						</tr>
+						<tr>
+							<td colspan='2'>Please Confirm: </td>
+							<td>
+								<input class="default_checkbox" checked="checked" type="checkbox" name="Other_confirm" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
+							</td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+						</tr>
+						
+						<tr>
+							<td colspan="2">Document: </td>
+							<td colspan="2">
+								<input type="radio" class="radio_document_default" name="Other_document" value="yes" /> I am uploading a copy of my diploma as proof of qualification <br/>
+								<input type="radio" class="radio_document_default" name="Other_document" value="no" /> I am supplying two references who can be contacted as proof of my qualification 	
+							</td>
+						</tr>
+					</tbody>
+				</table>	
+				
+				<table style="display:none;" class="popup_documents_default">
+					<tbody>
+						<tr>
+							<td colspan="2">  only pdf/jpg/png (Max 2MB) </td>
+							<td  class="popup_file_d"><input style="font-size:17px;" name="Other_certificate" type="file" /> </td>
+						</tr>
+					</tbody>
+				</table>
+			
+				<table style="display:none;" class="popup_emails_default">
+					<tbody>
+						<tr>
+							<td colspan="2">Reference no.1 email address:</td>
+							<td><input type="text" name="Other_email_1" /></td>
+						</tr>
+						<tr>
+							<td colspan="2">Reference no.2 email address:</td>
+							<td><input type="text" name="Other_email_2" /></td>
+						</tr>
+					</tbody>
+				</table>
+								
+			
+				<div class="popup_submit_cancel_default">
+					<a href="#" id="Othertable_cancel" class="popup_cancel"><input type="button" value="cancel" class="button-secondary" /></a>&nbsp;&nbsp;
+					<a href="#" id="Othertable_submit" class="popup_submit"><input type="button" name="popup_submit" value="submit" class="button-secondary" /></a>
+				</div>
+				
+				
+						
+			</div> <!-- popup_div_other -->
+			
+			
 		
 		
 			<!-- white balnket over the body -->
 			<div id="blanket" style="display:none;"></div>
-			</div> <!--  end of the default table -->
+			</div> <!--  end of the div original -->
 		
 		<?php 	
 		}
@@ -136,6 +236,17 @@ if(!class_exists('pie_register_extending')) :
 				
 				echo "<link  rel='stylesheet' type='text/css' href='$path'></link>"; 
 			endif;
+		}
+		
+		//form data manipulation 
+		function extending_save($user){
+			require dirname(__FILE__) . '/includes/extending-save.php';
+		}
+		
+		//error reporting
+		function extending_errors($errors){
+			require dirname(__FILE__) . '/includes/errors-checking.php';
+			return $errors;
 		}
 		
 	}
