@@ -40,14 +40,14 @@ if($data) :
 				$total_format[] = '%s';
 				$total_array['verified'] = 'y';
 				$total_format[] = '%s';
+				$modals = get_user_meta($uid,'_tern_wp_member_list',true);
+				$m_array = explode(', ', $modals);
+				if(!in_array($modal, $m_array)){
+					$modals .= ', ' . $modal;
+					update_user_meta($uid,'_tern_wp_member_list',$modals);
+				}
 			}			
-			$wpdb->update($table,$total_array,array('id'=>$uid),$total_format,array('%d'));
-			$modals = get_user_meta($uid,'_tern_wp_member_list',true);
-			$m_array = explode(', ', $modals);
-			if(!in_array($modal, $m_array)){
-				$modals .= ', ' . $modal;
-				update_user_meta($uid,'_tern_wp_member_list',$modals);
-			}
+			$wpdb->update($table,$total_array,array('id'=>$uid),$total_format,array('%d'));			
 			
 			$username = get_user_meta($uid,'first_name',true) . ' ' . get_user_meta($uid,'last_name',true);
 			$message = "Thank you for confirming $username as $modal practioner. <br/> Please feel free to stay and have a look around HealersWiki!";
@@ -75,23 +75,23 @@ if($data) :
 				$total_format[] = '%s';
 				$total_array['verified'] = 'y';
 				$total_format[] = '%s';
+				
+				$modals = get_user_meta($uid,'_tern_wp_member_list',true);
+				$m_array = explode(', ', $modals);
+				if(!in_array($modal, $m_array)){
+					$modals .= ', ' . $modal;
+					update_user_meta($uid,'_tern_wp_member_list',$modals);
+				}
+				
+				//updating options
+				$values = get_option('tern_wp_members');			
+				if(!in_array($modal, $values['lists'])){	
+					$values['lists'][] = $modal;
+					update_option('tern_wp_members',$values);
+				}
 			}			
 			$wpdb->update($table,$total_array,array('id'=>$uid),$total_format,array('%d'));
-			
-			$modals = get_user_meta($uid,'_tern_wp_member_list',true);
-			$m_array = explode(', ', $modals);
-			if(!in_array($modal, $m_array)){
-				$modals .= ', ' . $modal;
-				update_user_meta($uid,'_tern_wp_member_list',$modals);
-			}
-			
-			//updating options
-			$values = get_option('tern_wp_members');			
-			if(!in_array($modal, $values['lists'])){	
-				$values['lists'][] = $modal;
-				update_option('tern_wp_members',$values);
-			}
-
+			$username = get_user_meta($uid,'first_name',true) . ' ' . get_user_meta($uid,'last_name',true);
 			$message = "Thank you for confirming $username as $modal practioner. <br/> Please feel free to stay and have a look around HealersWiki!";
 		}
 		else{

@@ -42,6 +42,9 @@
 					}
 					if(!is_email(trim($_POST[$sanitized . '_email_2']))){
 						$errors->add('email_2', __("<strong>ERROR</strong>: Your second Reference email is invalid for $m_name modal.", 'piereg'));
+					}					
+					if(trim($_POST[$sanitized . '_email_1']) == trim($_POST[$sanitized . '_email_2'])){
+						$errors->add('same_email', __("<strong>ERROR</strong>: Reference emails must not be same.", 'piereg'));
 					}
 				}
 			
@@ -55,5 +58,5 @@
 		}
 	}
 	else{
-		$errors->add('modal_unchecked', __("<strong>ERROR</strong>: Please choose atleast any modal option.", 'piereg'));
+		$errors->add('modal_unchecked', __("<strong>ERROR</strong>: Please choose atleast one healing  modality.", 'piereg'));
 	}
