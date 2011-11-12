@@ -20,6 +20,51 @@ if(!class_exists('pie_register_extending')) :
 			add_action('pie_register_extending_save',array($this,'extending_save'),10,1);
 			add_filter('registration_errors',array($this,'extending_errors'),50);
 			register_activation_hook( __FILE__, array($this,'table_creation'));
+			add_action('deleted_user',array($this,'delete_user_data'));
+			//add_action('init',array($this,'init_checking'));
+			
+			//verify the users
+			add_action('init',array($this,'validate_users'));			
+		}
+		
+		//validate the register users
+		function validate_users(){
+			
+			//validate by admin
+			$message = '';
+			if(isset($_GET['uid']) && isset($_GET['modal']) && isset($_GET['authkey']) && isset($_GET['admin'])){
+				include dirname(__FILE__) . '/includes/admin-validate.php';
+			}
+			
+			//validate by reference email
+			if(isset($_GET['uid']) && isset($_GET['modal']) && isset($_GET['authkey']) && isset($_GET['rm'])){
+				include dirname(__FILE__) . '/includes/ref-email-validate.php';
+			}
+			
+			//confirmation message showing
+			include dirname(__FILE__) . '/includes/confirmation-scrip.php';
+			
+		}
+		
+		//if an user is deleted this function will be clled
+		function delete_user_data($id){
+			global $wpdb;
+			$table = $wpdb->prefix . 'pie_ext';
+			$wpdb->query("DELETE FROM $table WHERE `id`=$id");
+		}
+		
+		function init_checking(){
+			$values = get_option('tern_wp_members');
+			var_dump($values);
+			global $wpdb;
+			$table = $wpdb->prefix . 'pie_ext';
+			$results = $wpdb->get_results("SELECT * FROM $table");
+			//var_dump($results);
+			if(!function_exists('wp_generate_password')) : 
+				include ABSPATH . 'wp-includes/pluggable.php';
+			endif;
+			//wp_mail('hyde.sohag@gmail.com','gaga','gaga');
+			exit;
 		}
 		
 		//database table creation
