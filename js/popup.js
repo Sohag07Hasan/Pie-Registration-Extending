@@ -144,8 +144,9 @@ jQuery(document).ready(function($){
 	});
 	
 	//make the checkbox alwasy checked
+	/*
 	$('.default_checkbox').bind('click',function(){
 		return false;
 	});	
-	
+	*/
 });

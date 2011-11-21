@@ -12,7 +12,7 @@ if(!class_exists('pie_register_extending')) :
 
 	class pie_register_extending{
 		
-		
+		var $user_modality = array();
 		
 		function __construct(){
 			add_action('pie-registraion-form',array($this,'pie_registraion_extra_fields'),100);
@@ -24,7 +24,15 @@ if(!class_exists('pie_register_extending')) :
 			//add_action('init',array($this,'init_checking'));
 			
 			//verify the users
-			add_action('init',array($this,'validate_users'));			
+			add_action('init',array($this,'validate_users'));
+
+			add_filter('pie_register_email',array($this,'email_sanitizing'));
+		}
+		
+		//email sanitizing
+		function email_sanitizing($message){
+			$message = str_replace('%user_healing_modalities%', implode(', ',$this->user_modality), $message);
+			return $message;
 		}
 		
 		//validate the register users
@@ -93,8 +101,7 @@ if(!class_exists('pie_register_extending')) :
 		<div>&nbsp;</div>
 		
 		<!-- upload type multipart -->
-		<script type="text/javascript">
-	
+		<script type="text/javascript">	
 			jQuery('#registerform').attr('enctype','multipart/form-data');
 		</script>
 		
@@ -128,7 +135,7 @@ if(!class_exists('pie_register_extending')) :
 					<tr>
 						<td colspan='2'>Please Confirm: </td>
 						<td>
-							<input class="default_checkbox" checked="checked" type="checkbox" name="<?php echo $sanitized.'_confirm' ?>" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
+							<input class="default_checkbox" type="checkbox" name="<?php echo $sanitized.'_confirm' ?>" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
 						</td>
 					</tr>
 					<tr>
@@ -183,28 +190,35 @@ if(!class_exists('pie_register_extending')) :
 			
 			<label for "healing_modalities[]">
 				<p>
-					<input id="Other" class="default_listing" type="checkbox" name="healing_modalities[]" value="Other" /> Other
+					<input id="Other" class="default_listing" type="checkbox" name="healing_modalities[]" value="Other" /> Healing Modality Not Listed Yet
 				</p>
 			</label>
 			
 			<!-- pop up for other options -->		
 			<div class="div_for_popup" id="Othertable" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
 				
-				<h2 class="suggestion-text">Please Provide your Suggession</h2>
+				<h2 class="suggestion-text">Please Provide Details About Your Healing Modality</h2>
 				<table class="popup_table_default">
 					<tbody>
 						<tr>
-							<td colspan='2'>Name: </td>
+							<td colspan='2'>Healing Modality Name: </td>
 							<td><input type="text" name="Other_name" /></td>
 						</tr>
 						<tr>
-							<td colspan='2'>Description: </td>
-							<td><textarea cols="30" rows="5" name="Other_description" ></textarea></td>
+							<td colspan='2'>Description (min. 200 characters): </td>
+							<td>
+								<textarea cols="30" rows="5" name="Other_description" ></textarea>
+								<br/>
+								<p><small>
+								NB: Please note that this description will be used in our public Wiki article about this healing modality - you will be able to add more there later
+								</small></p>
+							</td>
+							
 						</tr>
 						<tr>
 							<td colspan='2'>Please Confirm: </td>
 							<td>
-								<input class="default_checkbox" checked="checked" type="checkbox" name="Other_confirm" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
+								<input class="default_checkbox" type="checkbox" name="Other_confirm" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
 							</td>
 						</tr>
 						<tr>
@@ -286,6 +300,7 @@ if(!class_exists('pie_register_extending')) :
 		//form data manipulation 
 		function extending_save($user){
 			require dirname(__FILE__) . '/includes/extending-save.php';
+			$this->user_modality = $modal_names_msg;
 		}
 		
 		//error reporting

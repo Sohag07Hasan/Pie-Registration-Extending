@@ -9,6 +9,8 @@
 	
 	$home = get_option('siteurl');
 	
+	$modal_names_msg = array();
+	
 	$u_id = $user->ID;
 	$m_names = $_REQUEST['healing_modalities'];
 	$attachmentlink = '';
@@ -35,12 +37,21 @@
 		
 		//description				
 		
-		if($sanitized == 'Other') :		
+		if($sanitized == 'Other') :	
 			$modal_name = trim($_POST['Other_name']);
-			$modal_description = $_POST['Other_description'];
-			
+			$modal_description = $_POST['Other_description'];	
+			$wiki_array = array(
+							'post_type' => 'incsub_wiki',
+							'post_content' => $modal_description,
+							'post_title' => $modal_name,
+							'post_author' => $u_id
+						);
+			$wiki_id = wp_insert_post($wiki_array);
+			$action = 'edit';
+			$edit_link = $home . "/wp-admin/post.php?post=$wiki_id&action=$action";				
 			$message .= "Modal name: $modal_name (suggested)\n";
 			$message .= "Modal description: $modal_description \n";
+			$message .= "Wiki Link: $edit_link \n";
 			
 		else : 
 			$modal_name = trim($m_name);
@@ -93,8 +104,8 @@
 			$link_to_approve_1 = $home . "/pie-registration/?uid=$u_id&modal=$modal&rm=$rm_1&authkey=$activationkey";
 			$link_to_approve_2 = $home . "/pie-registration/?uid=$u_id&modal=$modal&rm=$rm_2&authkey=$activationkey";
 			
-			$ref_message_1 = "Dear Healer,\n$fullname_of_new_member has listed you as a reference in order for us to include him/her in our Healers Directory at www.HealersWiki.org.If you can vouch for his/her credentials as a  \"$modal_name\" practitioner, please click the link below. If you do not know this person, or cannot vouch for their credentials, please accept our apologies for any inconvenience, and just ignore this email.\n\nTo confirm $fullname_of_new_member as a \"$modal_name\" practitioner:\n$link_to_approve_1 \n\nIf you are not already registered, you are of course also welcome to join for FREE at www.HealersWiki.org, and use all our interactive resources, including a community-built Wiki resource with information for healers, an international healing events calendar and of course the international healers directory.\n\n Warm wishes,\n Justin and Marcus\n Healers Wiki \n www.HealersWiki.org";
-			$ref_message_2 = "Dear Healer,\n$fullname_of_new_member has listed you as a reference in order for us to include him/her in our Healers Directory at www.HealersWiki.org.If you can vouch for his/her credentials as a  \"$modal_name\" practitioner, please click the link below. If you do not know this person, or cannot vouch for their credentials, please accept our apologies for any inconvenience, and just ignore this email.\n\n To confirm $fullname_of_new_member as a \"$modal_name\" practitioner:\n$link_to_approve_2 \n\n If you are not already registered, you are of course also welcome to join for FREE at www.HealersWiki.org, and use all our interactive resources, including a community-built Wiki resource with information for healers, an international healing events calendar and of course the international healers directory.\n\n Warm wishes,\n Justin and Marcus\n Healers Wiki \n www.HealersWiki.org";
+			$ref_message_1 = "Dear Healer,\n$fullname_of_new_member has listed you as a reference in order for us to include him/her in our Healers Directory at http://www.HealersWiki.org If you can vouch for his/her credentials as a  \"$modal_name\" practitioner, please click the link below. If you do not know this person, or cannot vouch for their credentials, please accept our apologies for any inconvenience, and just ignore this email.\n\nTo confirm $fullname_of_new_member as a \"$modal_name\" practitioner:\n$link_to_approve_1 \n\nIf you are not already registered, you are of course also welcome to join for FREE at http://www.HealersWiki.org, and use all our interactive resources, including a community-built Wiki resource with information for healers, an international healing events calendar and of course the international healers directory.\n\n Warm wishes,\n Justin and Marcus\n Healers Wiki \n www.HealersWiki.org";
+			$ref_message_2 = "Dear Healer,\n$fullname_of_new_member has listed you as a reference in order for us to include him/her in our Healers Directory at http://www.HealersWiki.org If you can vouch for his/her credentials as a  \"$modal_name\" practitioner, please click the link below. If you do not know this person, or cannot vouch for their credentials, please accept our apologies for any inconvenience, and just ignore this email.\n\n To confirm $fullname_of_new_member as a \"$modal_name\" practitioner:\n$link_to_approve_2 \n\n If you are not already registered, you are of course also welcome to join for FREE at http://www.HealersWiki.org, and use all our interactive resources, including a community-built Wiki resource with information for healers, an international healing events calendar and of course the international healers directory.\n\n Warm wishes,\n Justin and Marcus\n Healers Wiki \n www.HealersWiki.org";
 						
 			$subject = "Reference request for $fullname_of_new_member";
 			wp_mail($email_1,$subject,$ref_message_1,$headers);
@@ -118,10 +129,12 @@
 		
 		$wpdb->insert($table,$array,array('%d','%s','%s','%s','%s','%s'));
 		
+		$modal_names_msg[] = $modal_name;
 		
 	}
-
+	//$this->user_modality = $modal_names_msg;
 	$final_message .= $message;
 	//$admin_mail = get_option('admin_email');
 	$admin_mail = 'hyde.sohag@gmail.com';
-	wp_mail($admin_mail,'New Registration',$final_message,$headers);	
+	wp_mail($admin_mail,'New Registration',$final_message,$headers);
+	$message = '';	

@@ -13,7 +13,7 @@
 			
 			
 			if(empty($_POST[$sanitized.'_confirm']) || $_POST[$sanitized.'_confirm']=''){
-				$errors->add('confirmation', __("<strong>ERROR</strong>: You must have to confirm that, your country supports $m_name modal practices.",'piereg'));
+				$errors->add('confirmation', __("<strong>ERROR</strong>:  For inclusion in our public directory, healers must be adequately insured to practice their modality ($m_name) based on relevant legislation in their geographical area.",'piereg'));
 			}
 			
 			if(empty($_POST[$sanitized . '_document']) || $_POST[$sanitized . '_document']==''){
