@@ -12,12 +12,17 @@ if(current_user_can('create_users')) :
 	$table = $wpdb->prefix . 'pie_ext';
 	
 	$data = $wpdb->get_row("SELECT `modal`, `type` FROM $table WHERE `id`='$uid' AND `auth_key`='$authkey'");
-	var_dump($data);
+	//var_dump($data);
 	
 	if($data) {
 	
 		if($modal = 'Other'){
-			$modal = $data->modal;		
+			$modal = $data->modal;
+			$values = get_option('tern_wp_members');			
+			if(!in_array($modal, $values['lists'])){	
+				$values['lists'][] = $modal;
+				update_option('tern_wp_members',$values);
+			}		
 		}
 						
 		$wpdb->update($table,array('verified'=>'y','auth_key'=>''),array('id'=>$uid),array('%s','%s'),array('%d'));

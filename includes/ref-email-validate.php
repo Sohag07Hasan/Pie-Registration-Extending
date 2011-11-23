@@ -3,6 +3,7 @@ $uid = trim($_GET['uid']);
 $uid = (int)$uid;
 $email = trim($_GET['rm']);
 $modal = trim($_GET['modal']);
+$other = $modal;
 $authkey = trim($_GET['authkey']);
 $message = '';
 
@@ -21,7 +22,7 @@ if($data) :
 	$total_format = array();
 	
 	$details = unserialize($data->details);
-	var_dump($details);
+	//var_dump($details);
 	if($details[$email] == 'n') :
 		
 		$details[$email] = 'y';
@@ -35,6 +36,13 @@ if($data) :
 		}
 		
 		if(!in_array('n', $dy)){
+			
+			$values = get_option('tern_wp_members');			
+			if(!in_array($modal, $values['lists'])){	
+				$values['lists'][] = $modal;
+				update_option('tern_wp_members',$values);
+			}
+				
 			$user_modals = get_user_meta($uid,'_tern_wp_member_list',true);
 			$modal_array = explode(', ', $user_modals);
 			if(!$user_modals){

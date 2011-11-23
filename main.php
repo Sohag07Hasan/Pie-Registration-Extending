@@ -15,11 +15,23 @@ if(!class_exists('pie_register_extending')) :
 		var $user_modality = array();
 		
 		function __construct(){
+			
+			//adding extra fields in the pie registration form
 			add_action('pie-registraion-form',array($this,'pie_registraion_extra_fields'),100);
+			
+			// css and js adding
 			add_action('login_enqueue_scripts',array($this,'css_js_adding'));
+			
+			//saving the registration data
 			add_action('pie_register_extending_save',array($this,'extending_save'),10,1);
+			
+			//valdating the registration data
 			add_filter('registration_errors',array($this,'extending_errors'),50);
+			
+			//creation of db table
 			register_activation_hook( __FILE__, array($this,'table_creation'));
+			
+			//delete users pie registration data while delte an user
 			add_action('deleted_user',array($this,'delete_user_data'));
 			//add_action('init',array($this,'init_checking'));
 			
@@ -27,7 +39,56 @@ if(!class_exists('pie_register_extending')) :
 			add_action('init',array($this,'validate_users'));
 
 			add_filter('pie_register_email',array($this,'email_sanitizing'));
+			
+			//dashboard setup
+			add_action('wp_dashboard_setup',array($this,'add_dashboard_widgets'));
+			
+			//dashboard javascript and css
+			add_action('admin_enqueue_scripts',array($this,'dashboard_js_adding'),20);
+			
+			//ajax daata
+			add_action('wp_ajax_pie_register_dashboard_approve',array($this,'dashboard_approve'));
 		}
+		
+		/*******************************************************************************************
+		 * 					DASHBOARD AJAX MANIPULATION
+		 * ******************************************************************************************/
+		function dashboard_approve(){
+			$nonce = $_REQUEST['nonce'];
+			$id = trim($_REQUEST['en_id']);
+			
+			include dirname(__FILE__) . '/includes/ajax_approve.php';
+			
+			exit;
+		}
+		
+		//adding dashbaord js and css
+		function dashboard_js_adding(){
+			wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
+			wp_enqueue_style('pie_register_dashbaord_css');
+			
+			wp_enqueue_script('jquery');
+			wp_register_script('pie_register_dashbaord_js', plugins_url('', __FILE__).'/js/dashboard.js',array('jquery'));		
+			wp_enqueue_script('pie_register_dashbaord_js');
+			
+			$nonce = wp_create_nonce('pie_register_extending');
+			wp_localize_script( 'pie_register_dashbaord_js', 'PieRegister', array( 
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce' => $nonce			
+			));
+			
+		}
+		
+		//adding dashbarod function
+		function  add_dashboard_widgets(){
+			wp_add_dashboard_widget('pie_register_widget', 'Users\' Pending Healing Modalites', array($this, 'dashboard_widget_function'));
+		}
+				
+		// populating the dashboard
+		function dashboard_widget_function(){
+			include dirname(__FILE__) . '/includes/dashboard.php';
+		}
+		
 		
 		//email sanitizing
 		function email_sanitizing($message){
@@ -109,7 +170,7 @@ if(!class_exists('pie_register_extending')) :
 		
 		<div style="clear:both">
 			<?php _e('<label>Healing Modalities:</label>', 'piereg');?>
-			
+			<br/><small style="font-style:italic">(if you selected any that you are a practitioner of, these will show publicly once they have been confirmed.)</small><br/>
 			<?php 
 				foreach($modalities as $modal){
 				$input_id = preg_replace('/[ ]/','_',$modal);

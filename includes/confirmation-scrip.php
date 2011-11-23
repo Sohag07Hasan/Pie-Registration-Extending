@@ -1,6 +1,30 @@
 <?php
-	if(strlen($message)>5) : 
+	if(strlen($message)>5) :
 ?>
+<?php
+	get_header();
+	
+?>
+<div id="content-area" class="clearfix<?php if($fullwidth) echo(' fullwidth');?>">
+	<div id="left-area">
+		<div class="entry">
+			<?php echo $message; ?>
+			<br/>
+		
+		</div> <!-- end of the entry -->
+	</div> <!-- end of the left area -->
+
+	
+	
+</div> <!-- end #content-area -->	
+
+ 
+<?php
+    
+     get_footer();
+     exit;
+?>
+
 <html>
 	<head>
 		<style type="text/css">
