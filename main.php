@@ -74,7 +74,8 @@ if(!class_exists('pie_register_extending')) :
 			$nonce = wp_create_nonce('pie_register_extending');
 			wp_localize_script( 'pie_register_dashbaord_js', 'PieRegister', array( 
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce' => $nonce			
+				'nonce' => $nonce,
+				'plugins_url' => plugins_url('',__FILE__)
 			));
 			
 		}

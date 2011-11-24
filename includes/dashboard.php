@@ -4,7 +4,7 @@ $table = $wpdb->prefix . 'pie_ext';
 
 //$all_users = $wpdb->get_col("SELECT `ID` FROM $wpdb->users ");
 //var_dump($all_users);
-$pending_users = $wpdb->get_results("SELECT * FROM $table WHERE `verified`='y' ");
+$pending_users = $wpdb->get_results("SELECT * FROM $table WHERE `verified`='n' ");
 //var_dump($pending_users);
 
 $pending_users_sanitized = array();
