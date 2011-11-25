@@ -25,6 +25,7 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 	<?php 
 		foreach ($san_user as $su){
 			echo '<div class="pending-user-modality" id="pending-user-modality-'.$su->modal.'" >';
+			echo '<div class="content-pending-user">';
 			echo "healing name: $su->modal <br/>";
 			$m = preg_replace('/[ ]/', '^', $su->modal);
 	
@@ -56,7 +57,7 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 					}
 					echo 'email: ' . $email . '<br/>';
 					echo 'status: ' . $s . '<br/>';
-					echo 'action: ' . "<a class='pending-mail-send' id='$ref_email_id' href='$email'>send ref mail</a><br/><br/>";
+					echo 'action: ' . "<a class='pending-mail-send' id='$ref_email_id' href='$email'>send ref mail</a><br/>";
 					$ref_email_id = $aw;
 				}
 				echo '</span>';
@@ -64,11 +65,13 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 				
 			}
 			echo '<b>status: </b> pending &nbsp; click here to <a class="approve-the-pending" id="'.$approve_class.'" href="#">approve</a>';	
+			echo '</div>';
 			echo '</div>'; // pending-user-modality
 		}
 		
 	?>
 	<hr noshade='noshade' />
+	<br/>
 	</div>
 	
 	

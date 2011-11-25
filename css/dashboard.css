@@ -33,3 +33,10 @@
 	float:right;
 	margin-right:15px;
 }
+
+.pending-user-modality{
+	border: 1px dotted #1E90FF;
+}
+.content-pending-user{
+	padding:5px;
+}

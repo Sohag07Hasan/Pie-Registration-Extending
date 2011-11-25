@@ -93,28 +93,31 @@ if(!class_exists('pie_register_extending')) :
 			/*	adding popup fromt this site
 			 * http://www.pat-burt.com/web-development/how-to-do-a-css-popup-without-opening-a-new-window/
 			 * */
-			
-			wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
-			wp_enqueue_style('pie_register_dashbaord_css');
-			
-			wp_enqueue_script('jquery');
-			wp_register_script('pie_register_dashbaord_js', plugins_url('', __FILE__).'/js/dashboard.js',array('jquery'));		
-			wp_enqueue_script('pie_register_dashbaord_js');
-			
-			$nonce = wp_create_nonce('pie_register_extending');
-			wp_localize_script( 'pie_register_dashbaord_js', 'PieRegister', array( 
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce' => $nonce,
-				'plugins_url' => plugins_url('',__FILE__)
-			));
-			
-			wp_register_script('pie_register_dashbaord_refemail_js', plugins_url('', __FILE__).'/js/dashboardpopup.js',array('jquery'));
-			wp_enqueue_script('pie_register_dashbaord_refemail_js');
+			if(current_user_can('create_users')) : 
+				wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
+				wp_enqueue_style('pie_register_dashbaord_css');
+				
+				wp_enqueue_script('jquery');
+				wp_register_script('pie_register_dashbaord_js', plugins_url('', __FILE__).'/js/dashboard.js',array('jquery'));		
+				wp_enqueue_script('pie_register_dashbaord_js');
+				
+				$nonce = wp_create_nonce('pie_register_extending');
+				wp_localize_script( 'pie_register_dashbaord_js', 'PieRegister', array( 
+					'ajaxurl' => admin_url( 'admin-ajax.php' ),
+					'nonce' => $nonce,
+					'plugins_url' => plugins_url('',__FILE__)
+				));
+				
+				wp_register_script('pie_register_dashbaord_refemail_js', plugins_url('', __FILE__).'/js/dashboardpopup.js',array('jquery'));
+				wp_enqueue_script('pie_register_dashbaord_refemail_js');
+			endif;
 		}
 		
 		//adding dashbarod function
 		function  add_dashboard_widgets(){
-			wp_add_dashboard_widget('pie_register_widget', 'Users\' Pending Healing Modalites', array($this, 'dashboard_widget_function'));
+			if(current_user_can('create_users')) : 
+				wp_add_dashboard_widget('pie_register_widget', 'Users\' Pending Healing Modalites', array($this, 'dashboard_widget_function'));
+			endif;
 		}
 				
 		// populating the dashboard
@@ -228,7 +231,7 @@ if(!class_exists('pie_register_extending')) :
 			<table class="popup_table_default">
 				<tbody>
 					<tr>
-						<td colspan='2'>Please Confirm: </td>
+						<td colspan="2">Please Confirm: </td>
 						<td>
 							<input class="default_checkbox" type="checkbox" name="<?php echo $sanitized.'_confirm' ?>" value="confirmed" /> I am adequately insured in my state / country to practice this healing modality
 						</td>
@@ -239,7 +242,7 @@ if(!class_exists('pie_register_extending')) :
 					
 					<tr>
 						<td colspan="2">Document: </td>
-						<td colspan="2">
+						<td>
 							<input type="radio" class="radio_document_default" name="<?php echo $sanitized . '_document'; ?>" value="yes" /> I am uploading a copy of my diploma as proof of qualification <br/>
 							
 							<input type="radio" class="radio_document_default" name="<?php echo $sanitized . '_document'; ?>" value="no" /> I am supplying two references who can be contacted as proof of my qualification 	
@@ -294,16 +297,17 @@ if(!class_exists('pie_register_extending')) :
 			<div class="div_for_popup" id="Othertable" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
 				
 				<h2 class="suggestion-text">Please Provide Details About Your Healing Modality</h2>
+				<br/>
 				<table class="popup_table_default">
 					<tbody>
 						<tr>
 							<td colspan='2'>Healing Modality Name: </td>
-							<td><input type="text" name="Other_name" /></td>
+							<td><input style="width:368px;font-size:24px;background-color:#FFFFE0" type="text" name="Other_name" /></td>
 						</tr>
 						<tr>
 							<td colspan='2'>Description (min. 200 characters): </td>
 							<td>
-								<textarea style="background-color:#FFFFE0;" cols="48" rows="5" name="Other_description" ></textarea>
+								<textarea style="background-color:#FFFFE0;width:368px" rows="5" name="Other_description" ></textarea>
 								<br/>
 								<p><small>
 								NB: Please note that this description will be used in our public Wiki article about this healing modality - you will be able to add more there later

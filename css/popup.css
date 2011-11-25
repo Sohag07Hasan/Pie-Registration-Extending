@@ -31,9 +31,9 @@
 	text-align:center;
 }
 
-.popup_emails_default input,.popup_table_default input{
-	width:368px;
-	height:25px;
-	background-color:#FFFFE0;
-}
 
+.popup_emails_default input{
+	width:368px;	
+	background-color:#FFFFE0;
+	font-size:24px;
+}

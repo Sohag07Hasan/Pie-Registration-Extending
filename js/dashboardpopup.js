@@ -115,9 +115,7 @@ jQuery(document).ready(function($){
 						message += 'Email has been changed\n';
 						$('#'+details).html(email);
 					}
-					else{
-						message += 'ERROR: Email can\'t be updated! please try again! \n';
-					}
+					
 					alert(message);
 					popup('popUpDiv');
 				}
