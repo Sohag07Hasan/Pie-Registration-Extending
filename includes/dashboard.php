@@ -29,6 +29,7 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 			$m = preg_replace('/[ ]/', '^', $su->modal);
 	
 			$approve_class .= $m . '-';
+			$ref_email_id = $user_id . '-' . $m;
 			
 			if($su->type == 'd'){
 				$approve_class .= 'd';
@@ -45,6 +46,8 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 				echo "<b>Reference Eamils: </b> <br/>" ;
 				echo '<span class="pending-ref-emails">';		
 				foreach($emails as $email=>$status){
+					$aw = $ref_email_id;
+					$ref_email_id .= '-' . $email;
 					if($status == 'n'){
 						$s = 'pending';
 					}
@@ -53,7 +56,8 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 					}
 					echo 'email: ' . $email . '<br/>';
 					echo 'status: ' . $s . '<br/>';
-					echo 'action: ' . "<a class='pending-mail-send' href='$email'>send ref mail</a><br/><br/>";
+					echo 'action: ' . "<a class='pending-mail-send' id='$ref_email_id' href='$email'>send ref mail</a><br/><br/>";
+					$ref_email_id = $aw;
 				}
 				echo '</span>';
 				
@@ -71,3 +75,22 @@ foreach($pending_users_sanitized as $user_id=>$san_user){
 <?php 
 }
 echo '</div>';
+
+// pop up for reference mail
+echo '<div id="blanket" style="display:none;"></div>';
+echo '<div id="popUpDiv" style="display:none;">
+		<div class="popupdiv_class">
+			<input style="width:275px;margin-top:15px;" type="text" id="popuprefmail" /><br/><br/>
+			<input type="hidden" id="popuprefmail_details" value="" />
+			<small style="color:#A52A2A">N.B: You can change the email address, this one will replace the previous one!</small>
+			<br/><br/>
+			<div class="cross_image">
+				<a id="cross_image_button" href="#"><img width=30px; src="'.$image.'" alt="cancel" /></a>
+			</div>
+			<div class="send_email">
+				<input id="alreay-ref-mailsend" type="button" value="send" class="button-secondary" />
+			</div>
+		</div>
+	</div>';
+
+

@@ -8,6 +8,7 @@
  * 
  * */
 
+
 if(!class_exists('pie_register_extending')) :
 
 	class pie_register_extending{
@@ -46,12 +47,36 @@ if(!class_exists('pie_register_extending')) :
 			//dashboard javascript and css
 			add_action('admin_enqueue_scripts',array($this,'dashboard_js_adding'),20);
 			
-			//ajax daata
+			//ajax daata to approve
 			add_action('wp_ajax_pie_register_dashboard_approve',array($this,'dashboard_approve'));
+			
+			//ajax data for sending reference email
+			add_action('wp_ajax_pie_register_refemail',array($this,'dashboard_ref_email'));
 		}
 		
 		/*******************************************************************************************
-		 * 					DASHBOARD AJAX MANIPULATION
+		 * 					DASHBOARD AJAX MANIPULATION for sending reference email
+		 * ******************************************************************************************/
+		function dashboard_ref_email(){
+			$message = array();
+			$l_mail = trim($_REQUEST['email']);
+			if(!function_exists('is_email')){
+				include ABSPATH . 'wp-includes/formatting.php';
+			}
+			if(is_email($l_mail)) : 						
+				$detail = $_REQUEST['details'];			
+				include dirname(__FILE__) . '/includes/ajax_ref_email.php';
+			else:
+				$message['e_s'] = 'n';
+			endif;
+			echo json_encode($message);	
+			exit;
+			
+		}
+		
+		
+		/*******************************************************************************************
+		 * 					DASHBOARD AJAX MANIPULATION for approval
 		 * ******************************************************************************************/
 		function dashboard_approve(){
 			$nonce = $_REQUEST['nonce'];
@@ -64,6 +89,11 @@ if(!class_exists('pie_register_extending')) :
 		
 		//adding dashbaord js and css
 		function dashboard_js_adding(){
+			
+			/*	adding popup fromt this site
+			 * http://www.pat-burt.com/web-development/how-to-do-a-css-popup-without-opening-a-new-window/
+			 * */
+			
 			wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
 			wp_enqueue_style('pie_register_dashbaord_css');
 			
@@ -78,6 +108,8 @@ if(!class_exists('pie_register_extending')) :
 				'plugins_url' => plugins_url('',__FILE__)
 			));
 			
+			wp_register_script('pie_register_dashbaord_refemail_js', plugins_url('', __FILE__).'/js/dashboardpopup.js',array('jquery'));
+			wp_enqueue_script('pie_register_dashbaord_refemail_js');
 		}
 		
 		//adding dashbarod function
@@ -87,6 +119,7 @@ if(!class_exists('pie_register_extending')) :
 				
 		// populating the dashboard
 		function dashboard_widget_function(){
+			$image = plugins_url('',__FILE__) . '/image/cross.jpg';
 			include dirname(__FILE__) . '/includes/dashboard.php';
 		}
 		
@@ -231,6 +264,7 @@ if(!class_exists('pie_register_extending')) :
 						<td colspan="2">Reference no.1 email address:</td>
 						<td><input type="text" name="<?php echo $sanitized . '_email_1'; ?>" /></td>
 					</tr>
+					<tr>&nbsp;</tr>
 					<tr>
 						<td colspan="2">Reference no.2 email address:</td>
 						<td><input type="text" name="<?php echo $sanitized . '_email_2'; ?>" /></td>
@@ -269,7 +303,7 @@ if(!class_exists('pie_register_extending')) :
 						<tr>
 							<td colspan='2'>Description (min. 200 characters): </td>
 							<td>
-								<textarea cols="30" rows="5" name="Other_description" ></textarea>
+								<textarea style="background-color:#FFFFE0;" cols="48" rows="5" name="Other_description" ></textarea>
 								<br/>
 								<p><small>
 								NB: Please note that this description will be used in our public Wiki article about this healing modality - you will be able to add more there later

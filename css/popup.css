@@ -30,3 +30,10 @@
 .suggestion-text{
 	text-align:center;
 }
+
+.popup_emails_default input,.popup_table_default input{
+	width:368px;
+	height:25px;
+	background-color:#FFFFE0;
+}
+

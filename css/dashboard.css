@@ -1,1 +1,35 @@
 @CHARSET "UTF-8";
+
+/* Pop Up css to send reference email */
+#blanket {
+	background-color:#111;
+	opacity: 0.65;
+	filter:alpha(opacity=65);
+	position:absolute;
+	z-index: 9001;
+	top:0px;
+	left:0px;
+	width:100%;
+}
+#popUpDiv {
+	position:absolute;
+	background-color:#eeeeee;
+	width:300px;
+	height:150px;
+	z-index: 9002;
+	margin-left:80px;
+}
+
+.popupdiv_class{
+	padding:10px;
+}
+
+.cross_image{
+	float:left;
+	margin-left:15px;
+}
+
+.send_email{
+	float:right;
+	margin-right:15px;
+}

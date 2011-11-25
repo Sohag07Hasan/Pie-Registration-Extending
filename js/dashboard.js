@@ -5,6 +5,7 @@ jQuery(document).ready(function($){
 			var image = PieRegister.plugins_url + '/image/ajax-loader.gif';
 			var image_element = '<img src="' + image + '"/>';
 			var en_id = $(this).attr('id');
+			
 			$('#' + en_id).html(image_element);
 			
 			$.ajax({				
