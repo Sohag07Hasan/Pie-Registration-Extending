@@ -7,7 +7,7 @@
 global $wpdb;
 $table = $wpdb->prefix . 'pie_ext';
 
-$details = explode('-', $detail);
+$details = explode('|', $detail);
 $id = (int)$details[0];
 
 $modal = preg_replace('/\^/',' ',$details[1]);
@@ -28,7 +28,7 @@ foreach($datas as $email=>$status){
 	$updated_data[$email] = $status;
 }
 
-if($wpdb->update($table,array('details'=>serialize($updated_data)),array('id'=>$id),array('%s'),array('%d'))){
+if($wpdb->update($table,array('details'=>serialize($updated_data)),array('id'=>$id,'modal'=>$modal),array('%s'),array('%d','%s'))){
 	$message['u'] = 'y';
 }
 

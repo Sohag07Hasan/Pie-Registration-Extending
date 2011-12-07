@@ -32,6 +32,9 @@ if(!class_exists('pie_register_extending')) :
 			//creation of db table
 			register_activation_hook( __FILE__, array($this,'table_creation'));
 			
+			//delete database table
+		//	register_deactivation_hook( __FILE__, array($this,'table_del'));
+			
 			//delete users pie registration data while delte an user
 			add_action('deleted_user',array($this,'delete_user_data'));
 			//add_action('init',array($this,'init_checking'));
@@ -48,7 +51,7 @@ if(!class_exists('pie_register_extending')) :
 			add_action('admin_enqueue_scripts',array($this,'dashboard_js_adding'),20);
 			
 			//ajax daata to approve
-			add_action('wp_ajax_pie_register_dashboard_approve',array($this,'dashboard_approve'));
+			//add_action('wp_ajax_pie_register_dashboard_approve',array($this,'dashboard_approve'));
 			
 			//ajax data for sending reference email
 			add_action('wp_ajax_pie_register_refemail',array($this,'dashboard_ref_email'));
@@ -58,44 +61,31 @@ if(!class_exists('pie_register_extending')) :
 		 * 					DASHBOARD AJAX MANIPULATION for sending reference email
 		 * ******************************************************************************************/
 		function dashboard_ref_email(){
+			
 			$message = array();
 			$l_mail = trim($_REQUEST['email']);
 			if(!function_exists('is_email')){
 				include ABSPATH . 'wp-includes/formatting.php';
 			}
 			if(is_email($l_mail)) : 						
-				$detail = $_REQUEST['details'];			
+				$detail = $_REQUEST['details'];
+				$nonce = $_REQUEST['nonce'];		
 				include dirname(__FILE__) . '/includes/ajax_ref_email.php';
 			else:
 				$message['e_s'] = 'n';
 			endif;
-			echo json_encode($message);	
+			echo json_encode($message); 	
 			exit;
 			
-		}
-		
-		
-		/*******************************************************************************************
-		 * 					DASHBOARD AJAX MANIPULATION for approval
-		 * ******************************************************************************************/
-		function dashboard_approve(){
-			$nonce = $_REQUEST['nonce'];
-			$id = trim($_REQUEST['en_id']);
 			
-			include dirname(__FILE__) . '/includes/ajax_approve.php';
-			
-			exit;
-		}
+		}		
 		
 		//adding dashbaord js and css
-		function dashboard_js_adding(){
+		function dashboard_js_adding(){			
 			
-			/*	adding popup fromt this site
-			 * http://www.pat-burt.com/web-development/how-to-do-a-css-popup-without-opening-a-new-window/
-			 * */
 			if(current_user_can('create_users')) : 
-				wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
-				wp_enqueue_style('pie_register_dashbaord_css');
+			//	wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
+			 //   wp_enqueue_style('pie_register_dashbaord_css');
 				
 				wp_enqueue_script('jquery');
 				wp_register_script('pie_register_dashbaord_js', plugins_url('', __FILE__).'/js/dashboard.js',array('jquery'));		
@@ -107,9 +97,7 @@ if(!class_exists('pie_register_extending')) :
 					'nonce' => $nonce,
 					'plugins_url' => plugins_url('',__FILE__)
 				));
-				
-				wp_register_script('pie_register_dashbaord_refemail_js', plugins_url('', __FILE__).'/js/dashboardpopup.js',array('jquery'));
-				wp_enqueue_script('pie_register_dashbaord_refemail_js');
+							
 			endif;
 		}
 		
@@ -122,8 +110,16 @@ if(!class_exists('pie_register_extending')) :
 				
 		// populating the dashboard
 		function dashboard_widget_function(){
+			global $wpdb;
+			$table = $wpdb->prefix . 'pie_ext';
+			$home = get_option('siteurl');
+			
+			if($_REQUEST['p_ext'] == 'yes' && isset($_REQUEST['uid']) && isset($_REQUEST['modal']) && isset($_REQUEST['action'])){
+				include dirname(__FILE__) . '/includes/dashboard-del-approve.php';
+			}
+			
 			$image = plugins_url('',__FILE__) . '/image/cross.jpg';
-			include dirname(__FILE__) . '/includes/dashboard.php';
+			include dirname(__FILE__) . '/includes/dashboard-latest.php';
 		}
 		
 		
@@ -180,6 +176,7 @@ if(!class_exists('pie_register_extending')) :
 			$sql = "CREATE TABLE IF NOT EXISTS $table(
 				`id` bigint unsigned NOT NULL,
 				`modal` text NOT NULL,
+				`wiki_id` bigint DEFAULT 0,
 				`type` varchar(10) NOT NULL,
 				`details` text NOT NULL,
 				`auth_key` varchar(50),
@@ -189,6 +186,12 @@ if(!class_exists('pie_register_extending')) :
 				include ABSPATH . 'wp-admin/includes/upgrade.php';
 			endif;
 			dbDelta($sql);	
+		}
+		
+		function table_del(){
+			global $wpdb;
+			$table = $wpdb->prefix . 'pie_ext';
+			$wpdb->query("DROP TABLE $table");
 		}
 		
 		//extra fileds
@@ -227,7 +230,7 @@ if(!class_exists('pie_register_extending')) :
 		<!-- pop up for regular options -->	
 			
 		<div class="div_for_popup" id="<?php echo $div_id; ?>" style="display:none;position:absolute;background-color:#eeeeee;width:580px;z-index:9002;">
-			<h2 class="suggestion-text">Please Provide your Information</h2>
+			<h2 class="suggestion-text">Please Provide your Information For <?php echo $modal; ?></h2>
 			<table class="popup_table_default">
 				<tbody>
 					<tr>

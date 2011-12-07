@@ -1,34 +1,43 @@
 jQuery(document).ready(function($){
-	$('.approve-the-pending').click(function(){
+		
+	$('.dashboard-resend').bind('click',function(){
 		var con = confirm("are you sure!");
 		if(con){
 			var image = PieRegister.plugins_url + '/image/ajax-loader.gif';
 			var image_element = '<img src="' + image + '"/>';
 			var en_id = $(this).attr('id');
+			var details = $(this).attr('href');
 			
-			$('#' + en_id).html(image_element);
-			
+			var email_id = '#_' + en_id;			
+			var email = $(email_id).val();
+					
 			$.ajax({				
 				async: true,
 				type:'post',
 				url:PieRegister.ajaxurl,
 				dataType: "json",
 				cache:false,
-				timeout:10000,
+				timeout:100000,
 				data:{
-					'action' : 'pie_register_dashboard_approve',
-					'nonce' : PieRegister.nonce,
-					'en_id' : en_id
+					'action' : 'pie_register_refemail',
+					'details' : details,
+					'email' : email,
+					'nonce' : PieRegister.nonce
 				},
 				
 				success:function(result){
-					
-					if(result.updated == 'y'){
-						$('#' + en_id).html('approved');
-						alert('approved');
-						$(result.id_hide).css({'display':'none'});
-						$(result.id_hide).html(null);
+					if(result.e_s == 'n'){
+						alert('Invalid Email!');
 					}
+					else{
+						if(result.e == 'y'){
+							alert('Email Sent');
+						}
+						else{
+							alert('Email can\'t be sent! Please try again');
+						}
+					}
+					
 					return false;
 				},
 				

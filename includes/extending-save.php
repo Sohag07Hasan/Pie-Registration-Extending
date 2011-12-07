@@ -1,5 +1,7 @@
 <?php
 	
+	$wiki_id = 0;
+	
 	global $wpdb;
 	$table = $wpdb->prefix . 'pie_ext';
 	
@@ -84,6 +86,7 @@
 			$array = array(
 						'id' => $u_id,
 						'modal' => $modal_name,
+						'wiki_id' => $wiki_id,
 						'type' => 'd',
 						'details' => $attachmentlink,
 						'auth_key' => $activationkey,
@@ -118,6 +121,7 @@
 			$array = array(
 						'id' => $u_id,
 						'modal' => $modal_name,
+						'wiki_id' => $wiki_id,
 						'type' => 'e',
 						'details' => serialize($emails),
 						'auth_key' => $activationkey,
@@ -127,7 +131,7 @@
 		endif;
 		
 		
-		$wpdb->insert($table,$array,array('%d','%s','%s','%s','%s','%s'));
+		$wpdb->insert($table,$array,array('%d','%s','%d','%s','%s','%s','%s'));
 		
 		$modal_names_msg[] = $modal_name;
 		
