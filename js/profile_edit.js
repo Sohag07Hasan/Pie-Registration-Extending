@@ -39,7 +39,7 @@ function blanket_size(popUpDivVar){
 	}
 	var blanket=document.getElementById('blanket');blanket.style.height=blanket_height+'px';
 	var popUpDiv=document.getElementById(popUpDivVar);
-	popUpDiv_height=blanket_height/2-150;
+	popUpDiv_height=blanket_height/1.5;
 	popUpDiv.style.top=popUpDiv_height+'px';
 }
 

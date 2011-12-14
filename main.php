@@ -14,6 +14,8 @@ if(!class_exists('pie_register_extending')) :
 	class pie_register_extending{
 		
 		var $user_modality = array();
+		var $msg_key = '<b>Error</b>';
+		var $message = '';
 		
 		function __construct(){
 			
@@ -55,8 +57,49 @@ if(!class_exists('pie_register_extending')) :
 			
 			//ajax data for sending reference email
 			add_action('wp_ajax_pie_register_refemail',array($this,'dashboard_ref_email'));
+			
+			//profile page modification
+			add_action('show_user_profile',array($this,'user_profile'));
+			
+			add_action('admin_notices',array($this,'admin_message'));
+			
+			//save profile data
+			add_action('profile_update',array($this,'profile_check_save'),100,2);
+					
+			
+		}
+	
+			
+		//checking the modality data and save if valid
+		function profile_check_save($user_id,$userdata){
+			$m_names = $_REQUEST['healing_modalities'];
+			if($m_names) : 			
+				include dirname(__FILE__) . '/includes/profile_edit_check.php';			
+				if(!$key && !$message){
+					include dirname(__FILE__) . '/includes/profile_edit_save.php';
+				}
+			endif;
 		}
 		
+		
+		
+		
+		//admin notice if the modality options are error
+		function admin_message(){
+			if(strlen($this->message) > 3) :
+				echo "<div class='error'><p> $this->key : $this->message </p></div>";
+			endif;
+			
+		}
+		
+		
+		//user profile page contains healing modalities
+		function user_profile($profileuser){
+			if(current_user_can('editor')) :
+				include dirname(__FILE__) . '/includes/user-profile.php';	
+			endif;	
+		}		
+			
 		/*******************************************************************************************
 		 * 					DASHBOARD AJAX MANIPULATION for sending reference email
 		 * ******************************************************************************************/
@@ -82,11 +125,7 @@ if(!class_exists('pie_register_extending')) :
 		
 		//adding dashbaord js and css
 		function dashboard_js_adding(){			
-			
-			if(current_user_can('create_users')) : 
-			//	wp_register_style('pie_register_dashbaord_css', plugins_url('', __FILE__).'/css/dashboard.css');
-			 //   wp_enqueue_style('pie_register_dashbaord_css');
-				
+						
 				wp_enqueue_script('jquery');
 				wp_register_script('pie_register_dashbaord_js', plugins_url('', __FILE__).'/js/dashboard.js',array('jquery'));		
 				wp_enqueue_script('pie_register_dashbaord_js');
@@ -96,9 +135,13 @@ if(!class_exists('pie_register_extending')) :
 					'ajaxurl' => admin_url( 'admin-ajax.php' ),
 					'nonce' => $nonce,
 					'plugins_url' => plugins_url('',__FILE__)
-				));
-							
-			endif;
+				));						
+				
+				wp_register_script('popup_js', plugins_url('', __FILE__).'/js/profile_edit.js');
+				wp_enqueue_script('popup_js');				
+				wp_register_style( 'profile_edit_popup_css', plugins_url('', __FILE__).'/css/profile_edit.css' );
+				wp_enqueue_style('profile_edit_popup_css');		
+			
 		}
 		
 		//adding dashbarod function
@@ -305,7 +348,7 @@ if(!class_exists('pie_register_extending')) :
 					<tbody>
 						<tr>
 							<td colspan='2'>Healing Modality Name: </td>
-							<td><input style="width:368px;font-size:24px;background-color:#FFFFE0" type="text" name="Other_name" /></td>
+							<td><input style="width:368px;background-color:#FFFFE0" type="text" name="Other_name" /></td>
 						</tr>
 						<tr>
 							<td colspan='2'>Description (min. 200 characters): </td>
@@ -387,15 +430,7 @@ if(!class_exists('pie_register_extending')) :
 				wp_register_script('popup_js', plugins_url('', __FILE__).'/js/popup.js');
 				wp_enqueue_script('popup_js');
 				$path = plugins_url('', __FILE__).'/css/popup.css';
-				
-				/*
-				if(!function_exists('wp_register_style')){
-					include ABSPATH . 'wp-includes/functions.wp-styles.php';
-				}
-				wp_register_style('wp_popup_style', plugins_url('', __FILE__).'/css/popup.css');
-				wp_enqueue_style('wp_popup_style',plugins_url('', __FILE__).'/css/popup.css');
-				*/ 
-				
+								
 				echo "<link  rel='stylesheet' type='text/css' href='$path'></link>"; 
 			endif;
 		}
